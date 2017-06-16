@@ -69,7 +69,10 @@ namespace Microsoft.Azure.WebJobs.Extensions.Http
                 throw new ArgumentNullException(nameof(context));
             }
 
-            context.Config.RegisterBindingExtension(new HttpTriggerAttributeBindingProvider(SetResponse));
+            context.Config.RegisterBindingExtensions(
+                new HttpTriggerAttributeBindingProvider(this.SetResponse),
+                new ClaimsIdentityBindingProvider(),
+                new ClaimsPrincipalBindingProvider());
         }
     }
 }

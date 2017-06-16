@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -66,6 +67,15 @@ namespace Microsoft.Azure.WebJobs.Extensions.Tests.Extensions.Http
             _host.Call(method, new { req = request });
 
             Assert.Equal("test-response", request.HttpContext.Items["$ret"]); // Verify resposne was set
+        }
+
+        [Fact]
+        public void ClaimsPrincipalBinding()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "http://functions.com/api/TestIdentityBindings");
+
+            var method = typeof(TestFunctions).GetMethod("TestIdentityBindings");
+            _host.Call(method, new { req = request });
         }
 
         [Fact]
@@ -137,12 +147,21 @@ namespace Microsoft.Azure.WebJobs.Extensions.Tests.Extensions.Http
             {
                 blob = headers["testValue"];
             }
-                        
+
             public static Task<string> TestResponse(
                 [HttpTrigger("get", "post")] HttpRequest req)
             {
                 // Return value becomes the HttpResponseMessage.
-                return Task.FromResult("test-response"); 
+                return Task.FromResult("test-response");
+            }
+
+            public static void TestIdentityBindings(
+                [HttpTrigger("get")] HttpRequestMessage req,
+                ClaimsPrincipal principal,
+                ClaimsIdentity identity)
+            {
+                Assert.Same(ClaimsPrincipal.Current, principal);
+                Assert.Same(principal.Identity, identity);
             }
         }
     }
