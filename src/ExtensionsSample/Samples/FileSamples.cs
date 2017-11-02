@@ -14,19 +14,19 @@ namespace ExtensionsSample
 {
     public static class FileSamples
     {
-        // When new files arrive in the "import" directory, they are uploaded to a blob
-        // container then deleted.
-        public static async Task ImportFile(
-            [FileTrigger(@"import/{name}", "*.dat", autoDelete: true)] Stream file,
-            [Blob(@"processed/{name}")] CloudBlockBlob output,
-            string name,
-            TextWriter log)
-        {
-            await output.UploadFromStreamAsync(file);
-            file.Close();
+        //// When new files arrive in the "import" directory, they are uploaded to a blob
+        //// container then deleted.
+        //public static async Task ImportFile(
+        //    [FileTrigger(@"import/{name}", "*.dat", autoDelete: true)] Stream file,
+        //    [Blob(@"processed/{name}")] CloudBlockBlob output,
+        //    string name,
+        //    TextWriter log)
+        //{
+        //    await output.UploadFromStreamAsync(file);
+        //    file.Close();
 
-            log.WriteLine(string.Format("Processed input file '{0}'!", name));
-        }
+        //    log.WriteLine(string.Format("Processed input file '{0}'!", name));
+        //}
 
         public static void ImportFileErrorHandler(
             [ErrorTrigger] TraceEvent error, string message, TextWriter log)
@@ -64,6 +64,20 @@ namespace ExtensionsSample
             {
                 sw.WriteLine("Heartbeat timer triggered at " + DateTime.Now);
             }
+        }
+
+        public static void GetFS(
+[File(@"input.txt", FileAccess.Read, FileMode.OpenOrCreate)] FileStream info
+)
+        {
+
+        }
+
+        public static void GetInfo(
+    [File(@"input.txt", FileAccess.Read, FileMode.OpenOrCreate)] FileInfo info
+    )
+        {
+            
         }
 
         public static void ReadWrite(

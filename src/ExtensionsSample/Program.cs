@@ -20,32 +20,21 @@ namespace ExtensionsSample
         public static void Main(string[] args)
         {
             JobHostConfiguration config = new JobHostConfiguration();
+
+            config.DashboardConnectionString = null;
+            config.HostId = "abc";
+
             FilesConfiguration filesConfig = new FilesConfiguration();
 
             // See https://github.com/Azure/azure-webjobs-sdk/wiki/Running-Locally for details
             // on how to set up your local environment
-            if (config.IsDevelopment)
+            //if (config.IsDevelopment)
             {
-                config.UseDevelopmentSettings();
+                //config.UseDevelopmentSettings();
                 filesConfig.RootPath = @"c:\temp\files";
             }
 
             config.UseFiles(filesConfig);
-            config.UseTimers();
-            config.UseSample();
-            config.UseMobileApps();
-            config.UseTwilioSms();
-            config.UseCore();
-            config.UseCosmosDB();
-
-            var sendGridConfiguration = new SendGridConfiguration()
-            {
-                ToAddress = new EmailAddress("admin@webjobssamples.com", "WebJobs Extensions Samples"),
-                FromAddress = new EmailAddress("samples@webjobssamples.com", "WebJobs Extensions Samples")
-            };
-            config.UseSendGrid(sendGridConfiguration);
-
-            ConfigureTraceMonitor(config, sendGridConfiguration);
 
             EnsureSampleDirectoriesExist(filesConfig.RootPath);
 
@@ -55,21 +44,32 @@ namespace ExtensionsSample
             // be indexed by the JobHost.
             // To run some of the other samples included, add their types to this list
             config.TypeLocator = new SamplesTypeLocator(
-                typeof(ErrorMonitoringSamples),
-                typeof(FileSamples),
-                typeof(MiscellaneousSamples),
-                typeof(SampleSamples),
-                typeof(TableSamples),
-                typeof(TimerSamples));
+                //typeof(ErrorMonitoringSamples),
+                typeof(FileSamples)
+                //typeof(MiscellaneousSamples),
+                //typeof(SampleSamples),
+                //typeof(TableSamples),
+                //typeof(TimerSamples)
+                );
 
+            host.Call(typeof(FileSamples).GetMethod("GetFS"));
+            //host.Call(typeof(FileSamples).GetMethod("ReadWrite"));
+            /*
+            host.Call(typeof(FileSamples).GetMethod("ReadWrite"), new
+            {
+                input = "input2.txt",
+                output = "output2.txt"
+            });*/
+
+            /*
             // Some direct invocations to demonstrate various binding scenarios
             host.Call(typeof(MiscellaneousSamples).GetMethod("ExecutionContext"));
-            host.Call(typeof(FileSamples).GetMethod("ReadWrite"));
             host.Call(typeof(SampleSamples).GetMethod("Sample_BindToStream"));
             host.Call(typeof(SampleSamples).GetMethod("Sample_BindToString"));
             host.Call(typeof(TableSamples).GetMethod("CustomBinding"));
-
+            
             host.RunAndBlock();
+            */
         }
 
         /// <summary>
