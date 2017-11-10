@@ -95,9 +95,12 @@ namespace Microsoft.Azure.WebJobs
                 rule.BindToInput<FileStream>(this.GetFileStream);
                 rule.BindToStream(this, FileAccess.ReadWrite);
 
-                context.Config.RegisterBindingExtensions(
-                    new FileTriggerAttributeBindingProvider(_filesConfig, context.Trace)
-                    );
+                // Triggers
+                var rule2 = context.AddBindingRule<FileTriggerAttribute>();
+                rule2.BindToTrigger<FileSystemEventArgs>(new FileTriggerAttributeBindingProvider(_filesConfig, context.Trace));
+
+                rule2.AddConverter<string, FileSystemEventArgs>(str => FileTriggerBinding.GetFileArgsFromString(str));
+                rule2.AddConverter<FileSystemEventArgs, Stream>(args => File.OpenRead(args.FullPath));
             }
         }
     }
