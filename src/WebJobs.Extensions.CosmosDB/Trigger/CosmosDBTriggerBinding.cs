@@ -48,14 +48,8 @@ namespace Microsoft.Azure.WebJobs.Extensions.CosmosDB
 
         public Task<ITriggerData> BindAsync(object value, ValueBindingContext context)
         {
-            IReadOnlyList<Document> triggerValue;
-            if (!TryAndConvertToDocumentList(value, out triggerValue))
-            {
-                throw new InvalidOperationException("Unable to convert trigger to CosmosDBTrigger.");
-            }
-
-            var valueBinder = new CosmosDBTriggerValueBinder(_parameter.ParameterType, triggerValue);
-            return Task.FromResult<ITriggerData>(new TriggerData(valueBinder, _emptyBindingData));
+            // ValueProvider is via binding rules. 
+            return Task.FromResult<ITriggerData>(new TriggerData(null, _emptyBindingData));
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
@@ -80,29 +74,6 @@ namespace Microsoft.Azure.WebJobs.Extensions.CosmosDB
                 Type = CosmosDBTriggerConstants.TriggerName,
                 CollectionName = this._documentCollectionLocation.CollectionName
             };
-        }
-
-        internal static bool TryAndConvertToDocumentList(object value, out IReadOnlyList<Document> documents)
-        {
-            documents = null;
-
-            try
-            {
-                if (value is IReadOnlyList<Document> docs)
-                {
-                    documents = docs;
-                }
-                else if (value is string stringVal)
-                {
-                    documents = JsonConvert.DeserializeObject<IReadOnlyList<Document>>(stringVal);
-                }
-
-                return documents != null;
-            }
-            catch
-            {
-                return false;
-            }
         }
     }
 }
