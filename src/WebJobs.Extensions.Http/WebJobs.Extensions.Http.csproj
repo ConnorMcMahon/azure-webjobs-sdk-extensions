@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
+    <Version>$(HttpVersion)</Version>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Microsoft.Azure.WebJobs.Extensions.Http</AssemblyName>
     <RootNamespace>Microsoft.Azure.WebJobs.Extensions.Http</RootNamespace>
@@ -26,7 +27,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="2.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.2" />
+    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.4" />
   </ItemGroup>
 
   <ItemGroup>
