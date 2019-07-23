@@ -26,8 +26,11 @@ namespace Microsoft.Azure.WebJobs.Extensions.Http
         public void Initialize(ExtensionConfigContext context)
         {
             var httpBindingProvider = new HttpTriggerAttributeBindingProvider(_options.Value.SetResponse);
+            var httpAuthorizationFilterProvider = new HttpAuthorizationTriggerAttributeBindingProvider(_options.Value.SetAuthResponse);
             context.AddBindingRule<HttpTriggerAttribute>()
                 .BindToTrigger(httpBindingProvider);
+            context.AddBindingRule<HttpAuthorizationTriggerAttribute>()
+                .BindToTrigger(httpAuthorizationFilterProvider);
         }
     }
 }

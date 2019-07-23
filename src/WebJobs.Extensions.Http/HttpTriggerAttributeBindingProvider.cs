@@ -557,7 +557,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.Http
                 }
             }
 
-            private class NullListener : IListener
+            internal class NullListener : IListener
             {
                 public void Cancel()
                 {

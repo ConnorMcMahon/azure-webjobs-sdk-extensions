@@ -58,6 +58,12 @@ namespace Microsoft.Azure.WebJobs.Extensions.Http
         [JsonIgnore]
         public Action<HttpRequest, object> SetResponse { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Action used to receive the response.
+        /// </summary>
+        [JsonIgnore]
+        public Action<HttpRequest, bool> SetAuthResponse { get; set; }
+
         public string Format()
         {
             StringWriter sw = new StringWriter();

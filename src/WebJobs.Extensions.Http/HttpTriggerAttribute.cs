@@ -33,14 +33,13 @@ namespace Microsoft.Azure.WebJobs
         public HttpTriggerAttribute(params string[] methods) : this()
         {
             Methods = methods;
-            AllowedRoles = new string[0];
         }
 
         /// <summary>
         /// Constructs a new instance.
         /// </summary>
         /// <param name="authLevel">The <see cref="AuthorizationLevel"/> to apply.</param>
-        public HttpTriggerAttribute(AuthorizationLevel authLevel)
+        public HttpTriggerAttribute(AuthorizationLevel authLevel) 
         {
             AuthLevel = authLevel;
         }
@@ -65,7 +64,7 @@ namespace Microsoft.Azure.WebJobs
         {
             AuthLevel = authLevel;
             Methods = methods;
-            AllowedRoles = allowedRoles;
+            AllowedUserRoles = allowedRoles;
         }
 
         /// <summary>
@@ -77,7 +76,20 @@ namespace Microsoft.Azure.WebJobs
         {
             AuthLevel = authLevel;
             Methods = methods;
-            CustomAuthFunction = customFunctionName;
+            CustomAuthorizationPolicy = customFunctionName;
+        }
+
+        /// <summary>
+        /// Constructs a new instance.
+        /// </summary>
+        /// <param name="authLevel">The <see cref="AuthorizationLevel"/> to apply.</param>
+        /// <param name="methods">The http methods to allow.</param>
+        public HttpTriggerAttribute(AuthorizationLevel authLevel, string[] methods, string[] allowedRoles, string customFunctionName)
+        {
+            AuthLevel = authLevel;
+            Methods = methods;
+            AllowedUserRoles = allowedRoles;
+            CustomAuthorizationPolicy = customFunctionName;
         }
 
         /// <summary>
@@ -100,24 +112,23 @@ namespace Microsoft.Azure.WebJobs
         /// <summary>
         /// Gets the authorization level for the function.
         /// </summary>
-        [AutoResolve]
-        public string[] AllowedRoles { get; private set; } = new string[0];
+        public string[] AllowedUserRoles { get; private set; }
 
         /// <summary>
-        /// Gets the function name for the custom authorization function.
+        /// Gets the function name for the custom authorization policy function. The function must be an HttpAuthorizationTrigger.
         /// </summary>
-        public string CustomAuthFunction { get; private set; }
+        public string CustomAuthorizationPolicy { get; private set; }
 
         internal void ValidateSchema()
         {
-            if ((AllowedRoles?.Length ?? 0) != 0 && AuthLevel != AuthorizationLevel.User)
+            if ((AllowedUserRoles?.Length ?? 0) != 0 && AuthLevel != AuthorizationLevel.User)
             {
-                throw new InvalidOperationException($"Cannot use {nameof(AllowedRoles)} field without using an auth level of {AuthorizationLevel.User}");
+                throw new InvalidOperationException($"Cannot use {nameof(AllowedUserRoles)} field without using an auth level of {AuthorizationLevel.User}");
             }
 
-            if (!string.IsNullOrEmpty(CustomAuthFunction) && AuthLevel != AuthorizationLevel.Custom)
+            if (!string.IsNullOrEmpty(CustomAuthorizationPolicy) && AuthLevel != AuthorizationLevel.Custom)
             {
-                throw new InvalidOperationException($"Cannot use {nameof(CustomAuthFunction)} without using an auth level of {AuthorizationLevel.Custom}");
+                throw new InvalidOperationException($"Cannot use {nameof(CustomAuthorizationPolicy)} without using an auth level of {AuthorizationLevel.Custom}");
             }
         }
     }
