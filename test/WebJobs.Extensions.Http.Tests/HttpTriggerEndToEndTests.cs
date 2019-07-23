@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.Tests.Common;
+using Microsoft.Azure.WebJobs.Host.Indexers;
 using Microsoft.Azure.WebJobs.Host.TestCommon;
 using Microsoft.Extensions.Hosting;
 using Microsoft.WindowsAzure.Storage;
@@ -131,6 +132,52 @@ namespace Microsoft.Azure.WebJobs.Extensions.Tests.Extensions.Http
             }
         }
 
+        [Fact]
+        public async Task ValidRolesSchema()
+        {
+            HttpRequest request = HttpTestHelpers.CreateHttpRequest("GET", "http://functions.com/api/abc");
+            var method = typeof(TestFunctions).GetMethod(nameof(TestFunctions.TestRolesValid));
+            await _jobHost.CallAsync(method, new { req = request });
+
+            Assert.Equal("test-response", request.HttpContext.Items["$ret"]); // Verify resposne was set
+        }
+
+        [Fact]
+        public async Task InvalidRolesSchema()
+        {
+            var jobHost = new HostBuilder()
+                .ConfigureDefaultTestHost(builder =>
+                {
+                    builder.AddHttp(o =>
+                    {
+                        o.SetResponse = SetResultHook;
+                    })
+                    .AddAzureStorage();
+                }, typeof(InvalidRolesFunction))
+                .Build()
+                .GetJobHost();
+
+            await Assert.ThrowsAnyAsync<FunctionIndexingException>(async () => await jobHost.StartAsync());
+        }
+
+        [Fact]
+        public async Task InvalidCustomAuthSchema()
+        {
+            var jobHost = new HostBuilder()
+                .ConfigureDefaultTestHost(builder =>
+                {
+                    builder.AddHttp(o =>
+                    {
+                        o.SetResponse = SetResultHook;
+                    })
+                    .AddAzureStorage();
+                }, typeof(InvalidCustomAuthFunction))
+                .Build()
+                .GetJobHost();
+
+            await Assert.ThrowsAnyAsync<FunctionIndexingException>(async () => await jobHost.StartAsync());
+        }
+
         public static class TestFunctions
         {
             public static void TestFunction1(
@@ -161,6 +208,48 @@ namespace Microsoft.Azure.WebJobs.Extensions.Tests.Extensions.Http
 
             public static Task<string> TestResponse(
                 [HttpTrigger("get", "post")] HttpRequest req)
+            {
+                // Return value becomes the HttpResponseMessage.
+                return Task.FromResult("test-response");
+            }
+
+            public static Task<string> TestRolesValid(
+                [HttpTrigger(AuthorizationLevel.User, 
+                methods: new string[] { "GET" }, 
+                allowedRoles: new string[] { "SampleRole" })] HttpRequest req)
+            {
+                // Return value becomes the HttpResponseMessage.
+                return Task.FromResult("test-response");
+            }
+
+            public static Task<string> TestCustomFunctionValid(
+                [HttpTrigger(AuthorizationLevel.Custom, 
+                methods: new string[] { "GET" }, 
+                customFunctionName: "CustomFunction")] HttpRequest req)
+            {
+                // Return value becomes the HttpResponseMessage.
+                return Task.FromResult("test-response");
+            }
+        }
+
+        public class InvalidRolesFunction
+        {
+            public static Task<string> TestRolesInvalid(
+                [HttpTrigger(AuthorizationLevel.Function,
+                methods: new string[] { "GET" },
+                allowedRoles: new string[] { "SampleRole" })] HttpRequest req)
+            {
+                // Return value becomes the HttpResponseMessage.
+                return Task.FromResult("test-response");
+            }
+        }
+
+        public class InvalidCustomAuthFunction
+        {
+            public static Task<string> TestCustomFunctionInvalid(
+                [HttpTrigger(AuthorizationLevel.Function,
+                methods: new string[] { "GET" },
+                customFunctionName: "CustomFunction")] HttpRequest req)
             {
                 // Return value becomes the HttpResponseMessage.
                 return Task.FromResult("test-response");

@@ -32,5 +32,10 @@ namespace Microsoft.Azure.WebJobs.Extensions.Http
         /// Allow access to requests that include the master key
         /// </summary>
         Admin = 4,
+
+        /// <summary>
+        /// Allow access to requests that pass a custom Azure Function execution
+        /// </summary>
+        Custom = 5,
     }
 }

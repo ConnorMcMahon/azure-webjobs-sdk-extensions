@@ -74,6 +74,8 @@ namespace Microsoft.Azure.WebJobs.Extensions.Http
                 return Task.FromResult<ITriggerBinding>(null);
             }
 
+            attribute.ValidateSchema();
+
             bool isSupportedTypeBinding = ValueBinder.MatchParameterType(parameter, _supportedTypes);
             bool isUserTypeBinding = !isSupportedTypeBinding && IsValidUserType(parameter.ParameterType);
             if (!isSupportedTypeBinding && !isUserTypeBinding)
